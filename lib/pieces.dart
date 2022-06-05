@@ -239,6 +239,24 @@ class King extends ChessPiece {
         }
       }
     }
+    //check for castling
+    if (board[startRow][startCol].wasMoved == false) {
+      //check for right castle
+      if (board[startRow][startCol + 1] == null &&
+          board[startRow][startCol + 2] == null &&
+          board[startRow][startCol + 3] is Rook &&
+          board[startRow][startCol + 3].wasMoved == false) {
+        validMoves.add((startRow).toString() + (startCol + 2).toString());
+      }
+
+      //check for left castle
+      if (board[startRow][startCol - 1] == null &&
+          board[startRow][startCol - 2] == null &&
+          board[startRow][startCol - 3] == null &&
+          board[startRow][startCol - 4] is Rook) {
+        validMoves.add((startRow).toString() + (startCol - 2).toString());
+      }
+    }
     return validMoves;
   }
 }

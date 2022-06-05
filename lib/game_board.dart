@@ -59,6 +59,7 @@ class _GameBoardState extends State<GameBoard> {
   void highlightValidMoves(int row, int col) {
     ChessPiece? piece = curBoard[row][col];
     print(piece.toString() + row.toString() + " " + col.toString());
+    print(piece?.wasMoved);
     if (piece == null) {
       //empty square
       validMoves.clear();
@@ -120,6 +121,9 @@ class _GameBoardState extends State<GameBoard> {
     });
   }
 
+  void displayCheck(){
+  }
+
   void checkWin() {}
 
   void handleTap(row, col) {
@@ -129,19 +133,31 @@ class _GameBoardState extends State<GameBoard> {
       setState(() => {selectedX = row, selectedY = col});
     } else {
       curBoard[selectedX][selectedY]?.setWasMoved();
+      //check if castling
+      if (curBoard[selectedX][selectedY] is King &&
+          (col - selectedY).abs() == 2) {
+        if (selectedY < col) {
+          curBoard[row][col - 1] = curBoard[selectedX][7];
+          curBoard[row][col] = curBoard[selectedX][selectedY];
+          curBoard[selectedX][7] = null;
+        } else {
+          curBoard[row][col] = curBoard[selectedX][selectedY];
+          curBoard[row][col + 1] = curBoard[selectedX][0];
+          curBoard[selectedX][0] = null;
+        }
+      }
+
       //swap locations if curBoard[row][col] is "0"
       if (curBoard[row][col] == null) {
         ChessPiece? temp = curBoard[selectedX][selectedY];
         curBoard[selectedX][selectedY] = curBoard[row][col];
         curBoard[row][col] = temp;
-        validMoves.clear();
-        setState((() => {whiteTurn = !whiteTurn}));
       } else {
         curBoard[row][col] = curBoard[selectedX][selectedY];
         curBoard[selectedX][selectedY] = null;
-        validMoves.clear();
-        setState((() => {whiteTurn = !whiteTurn}));
       }
+      validMoves.clear();
+      setState((() => {whiteTurn = !whiteTurn}));
     }
   }
 
