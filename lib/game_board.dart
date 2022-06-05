@@ -15,67 +15,17 @@ King piece = King(true);
 class _GameBoardState extends State<GameBoard> {
   int selectedX = -1;
   int selectedY = -1;
-  List<List<ChessPiece?>> defaultBoard = [
-    [
-      Rook(false),
-      Knight(false),
-      Bishop(false),
-      Queen(false),
-      King(false),
-      Bishop(false),
-      Knight(false),
-      Rook(false)
-    ],
-    [
-      Pawn(false),
-      Pawn(false),
-      Pawn(false),
-      Pawn(false),
-      Pawn(false),
-      Pawn(false),
-      Pawn(false),
-      Pawn(false),
-    ],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    [
-      Pawn(true),
-      Pawn(true),
-      Pawn(true),
-      Pawn(true),
-      Pawn(true),
-      Pawn(true),
-      Pawn(true),
-      Pawn(true),
-    ],
-    [
-      Rook(true),
-      Knight(true),
-      Bishop(true),
-      Queen(true),
-      King(true),
-      Bishop(true),
-      Knight(true),
-      Rook(true)
-    ]
-  ];
   List<List<ChessPiece?>> curBoard = [
-    [King(false), null, null, null, null, null, null, null],
+    [King(false), null, null, null, Knight(false), null, null, null],
     [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, Knight(true), null, null, null],
     [null, null, null, null, null, null, null, null],
     [null, null, null, Queen(true), null, Queen(false), null, null],
-    [null, null, null, null, null, null, null, null],
-    [null, null, King(true), null, null, null, null, Queen(true)],
+    [null, null, null, null, Bishop(true), null, null, null],
+    [null, null, King(true), null, null, Rook(true), null, Queen(true)],
     [null, null, null, null, null, null, null, null]
   ];
   bool whiteTurn = true;
-  bool p1enPassante = false;
-  bool p2enPassante = false;
-  bool p1Castle = false;
-  bool p2Castle = false;
   Set<String> validMoves = {};
 
   // void flipBoard() {
@@ -123,15 +73,49 @@ class _GameBoardState extends State<GameBoard> {
   }
 
   void resetGame() {
+    for (int i = 0; i < curBoard.length; i++) {
+      for (int j = 0; j < curBoard.length; j++) {
+        curBoard[i][j] = null;
+      }
+    }
+
     setState(() {
+      curBoard[0][0] = Rook(false);
+      curBoard[0][1] = Knight(false);
+      curBoard[0][2] = Bishop(false);
+      curBoard[0][3] = Queen(false);
+      curBoard[0][4] = King(false);
+      curBoard[0][5] = Bishop(false);
+      curBoard[0][6] = Knight(false);
+      curBoard[0][7] = Rook(false);
+      curBoard[1][0] = Pawn(false);
+      curBoard[1][1] = Pawn(false);
+      curBoard[1][2] = Pawn(false);
+      curBoard[1][3] = Pawn(false);
+      curBoard[1][4] = Pawn(false);
+      curBoard[1][5] = Pawn(false);
+      curBoard[1][6] = Pawn(false);
+      curBoard[1][7] = Pawn(false);
+      curBoard[7][0] = Rook(true);
+      curBoard[7][1] = Knight(true);
+      curBoard[7][2] = Bishop(true);
+      curBoard[7][3] = Queen(true);
+      curBoard[7][4] = King(true);
+      curBoard[7][5] = Bishop(true);
+      curBoard[7][6] = Knight(true);
+      curBoard[7][7] = Rook(true);
+      curBoard[6][0] = Pawn(true);
+      curBoard[6][1] = Pawn(true);
+      curBoard[6][2] = Pawn(true);
+      curBoard[6][3] = Pawn(true);
+      curBoard[6][4] = Pawn(true);
+      curBoard[6][5] = Pawn(true);
+      curBoard[6][6] = Pawn(true);
+      curBoard[6][7] = Pawn(true);
       selectedX = -1;
       selectedY = -1;
-      curBoard = List.from(defaultBoard);
       whiteTurn = true;
-      p1enPassante = false;
-      p2enPassante = false;
-      p1Castle = false;
-      p2Castle = false;
+      // create new Player objects
       validMoves.clear();
     });
   }
@@ -144,6 +128,7 @@ class _GameBoardState extends State<GameBoard> {
       highlightValidMoves(row, col);
       setState(() => {selectedX = row, selectedY = col});
     } else {
+      curBoard[selectedX][selectedY]?.setWasMoved();
       //swap locations if curBoard[row][col] is "0"
       if (curBoard[row][col] == null) {
         ChessPiece? temp = curBoard[selectedX][selectedY];

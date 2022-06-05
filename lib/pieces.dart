@@ -1,5 +1,10 @@
 class ChessPiece {
   bool white = true;
+  bool wasMoved = false;
+
+  void setWasMoved() {
+    wasMoved = true;
+  }
 
   // ignore the following method, they are just as placeholders for null safety
   String renderChar() {
@@ -274,7 +279,10 @@ class Rook extends ChessPiece {
 
   @override
   Set<String> validMoves(List board, int startRow, int startCol) {
-    return {};
+    Set<String> legalMoves = {};
+    legalMoves = legalMoves.union(horMoves(board, startRow, startCol));
+    legalMoves = legalMoves.union(verMoves(board, startRow, startCol));
+    return legalMoves;
   }
 }
 
@@ -292,7 +300,9 @@ class Bishop extends ChessPiece {
 
   @override
   Set<String> validMoves(List board, int startRow, int startCol) {
-    return {};
+    Set<String> legalMoves = {};
+    legalMoves = legalMoves.union(diagMoves(board, startRow, startCol));
+    return legalMoves;
   }
 }
 
@@ -310,7 +320,31 @@ class Knight extends ChessPiece {
 
   @override
   Set<String> validMoves(List board, int startRow, int startCol) {
-    return {};
+    Set<String> legalMoves = {};
+    List moves = [
+      [1, 2],
+      [2, 1],
+      [-1, 2],
+      [-2, 1],
+      [1, -2],
+      [2, -1],
+      [-1, -2],
+      [-2, -1]
+    ];
+    for (int i = 0; i < moves.length; i++) {
+      int x = moves[i][0];
+      int y = moves[i][1];
+      if (checkInbounds(startRow + x, startCol + y)) {
+        var curSpot = board[startRow + x][startCol + y];
+        if (curSpot == null) {
+          legalMoves.add((startRow + x).toString() + (startCol + y).toString());
+        } else if (curSpot.isWhite() != white) {
+          legalMoves.add((startRow + x).toString() + (startCol + y).toString());
+        }
+      }
+    }
+
+    return legalMoves;
   }
 }
 
@@ -328,6 +362,55 @@ class Pawn extends ChessPiece {
 
   @override
   Set<String> validMoves(List board, int startRow, int startCol) {
-    return {};
+    Set<String> validMoves = {};
+    if (white) {
+      //white
+      if (!wasMoved &&
+          board[startRow - 2][startCol] == null &&
+          board[startRow - 1][startCol] == null) {
+        //first move only
+        validMoves.add((startRow - 2).toString() + startCol.toString());
+      }
+      if (checkInbounds(startRow - 1, startCol) &&
+          board[startRow - 1][startCol] == null) {
+        validMoves.add((startRow - 1).toString() + startCol.toString());
+      }
+      if (checkInbounds(startRow - 1, startCol - 1) &&
+          board[startRow - 1][startCol - 1] != null &&
+          board[startRow - 1][startCol - 1].isWhite() != white) {
+        validMoves.add((startRow - 1).toString() + (startCol - 1).toString());
+      }
+      if (checkInbounds(startRow - 1, startCol + 1) &&
+          board[startRow - 1][startCol + 1] != null &&
+          board[startRow - 1][startCol + 1].isWhite() != white) {
+        validMoves.add((startRow - 1).toString() + (startCol + 1).toString());
+      }
+    } else {
+      //black
+      if (!wasMoved &&
+          board[startRow + 2][startCol] == null &&
+          board[startRow + 1][startCol] == null) {
+        //first move only
+        validMoves.add((startRow + 2).toString() + startCol.toString());
+      }
+      if (checkInbounds(startRow + 1, startCol) &&
+          board[startRow + 1][startCol] == null) {
+        validMoves.add((startRow + 1).toString() + startCol.toString());
+      }
+      if (checkInbounds(startRow + 1, startCol - 1) &&
+          board[startRow + 1][startCol - 1] != null &&
+          board[startRow + 1][startCol - 1].isWhite() != white) {
+        validMoves.add((startRow + 1).toString() + (startCol - 1).toString());
+      }
+      if (checkInbounds(startRow + 1, startCol + 1) &&
+          board[startRow + 1][startCol + 1] != null &&
+          board[startRow + 1][startCol + 1].isWhite() != white) {
+        validMoves.add((startRow + 1).toString() + (startCol + 1).toString());
+      }
+
+      //en passant rules valid moves
+
+    }
+    return validMoves;
   }
 }
