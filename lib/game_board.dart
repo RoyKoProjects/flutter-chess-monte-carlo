@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pieces.dart';
+
 // GameBoard class
 /*displays the game board and handles the logic of the game*/
 
