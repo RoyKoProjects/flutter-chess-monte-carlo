@@ -36,18 +36,18 @@ class _HomePageState extends State<HomePage> {
     print(fen.split(' '));
     bool white;
     if (fen.split(' ')[1] == 'w') {
-      white = false;
-    } else {
       white = true;
+    } else {
+      white = false;
     }
-    Chess copyBoard = Chess.fromFEN(fen);
-    Node start = Node(null, copyBoard, []);
+    Node root = Node(null, fen, []);
     MCTS compbrain = MCTS();
     compbrain
-        .getPrediction(start, controller.isGameOver(), white, iterations: 1)
+        .getPrediction(root, controller.isGameOver(), white,
+            iterations: 10, maxTime: 10)
         .then((move) =>
             {print(move), controller.makeMove(from: move[0], to: move[1])});
-    print("nodesvisited: "+ compbrain.NodesVisited.toString());
+    print("nodesvisited: " + compbrain.nodesVisited.toString());
 
     // get move from MCTS
     // make move
