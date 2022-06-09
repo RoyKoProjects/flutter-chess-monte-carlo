@@ -59,8 +59,7 @@ class _GameBoardState extends State<GameBoard> {
 
   void highlightValidMoves(int row, int col) {
     ChessPiece? piece = curBoard[row][col];
-    print(piece.toString() + row.toString() + " " + col.toString());
-    print(piece?.wasMoved);
+    print("$piece $row $col");
     if (piece == null) {
       //empty square
       validMoves.clear();
@@ -122,8 +121,7 @@ class _GameBoardState extends State<GameBoard> {
     });
   }
 
-  void displayCheck(){
-  }
+  void displayCheck() {}
 
   void checkWin() {}
 
@@ -232,8 +230,9 @@ class _GameBoardState extends State<GameBoard> {
           onPressed: () {
             resetGame();
           },
-          child: const Icon(Icons.refresh),
+
           backgroundColor: Colors.green,
+          child: const Icon(Icons.refresh),
           // isExtended: true,
         ),
       ),

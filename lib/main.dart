@@ -30,8 +30,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   ChessBoardController controller = ChessBoardController();
+  MCTS compbrain = MCTS();
+  bool loading = false;
+  String lmFrom = "";
+  String lmTo = "";
 
-  makeBlackMove() async {
+  makeNextMove() {
     String fen = controller.getFen();
     print(fen.split(' '));
     bool white;
@@ -40,28 +44,40 @@ class _HomePageState extends State<HomePage> {
     } else {
       white = false;
     }
-    Node root = Node(null, fen, []);
-    MCTS compbrain = MCTS();
-    compbrain
-        .getPrediction(root, controller.isGameOver(), white,
-            iterations: 10, maxTime: 10)
-        .then((move) =>
-            {print(move), controller.makeMove(from: move[0], to: move[1])});
-    print("nodesvisited: " + compbrain.nodesVisited.toString());
+    Node root = Node(null, fen);
 
-    // get move from MCTS
-    // make move
-    // move=Move(int from, int to)
-    // controller.makeMove(move);
-    //.makeMoveWithNormalNotation(move);
+    setState(() {
+      loading = true;
+    });
+    compbrain
+        .getPrediction(
+            root, controller.isGameOver(), white, controller.getMoveCount())
+        .then((move) => {
+              setState(() {
+                loading = false;
+                lmFrom = move[0];
+                lmTo = move[1];
+              }),
+              controller.makeMove(from: move[0], to: move[1])
+            });
+    print("nodesvisited: , ${compbrain.nodesVisited}");
   }
+
+  void resetGame() {
+    controller.resetBoard();
+    setState(() {
+      lmFrom = "";
+      lmTo = "";
+      loading = false;
+    });
+  }
+
+  // @override
+  // void initState() {}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        // appBar: AppBar(
-        //   title: const Text('Chess Demo'),
-        // ),
         body: SafeArea(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -93,73 +109,61 @@ class _HomePageState extends State<HomePage> {
               child: Expanded(
                 child: Center(
                   child: ChessBoard(
-                    onMove: () => makeBlackMove(),
+                    onMove: () => makeNextMove(),
                     // enableUserMoves: false,
-
                     controller: controller,
                     boardColor: BoardColor.green,
-                    // arrows: [
-                    // BoardArrow(
-                    //   from: 'd2',
-                    //   to: 'd4',
-                    //   color: Colors.blue.withOpacity(0.5),
-                    // ),
-                    // BoardArrow(
-                    //   from: 'e7',
-                    //   to: 'e5',
-                    //   color: Colors.red.withOpacity(0.7),
-                    // ),
-                    // ],
+                    arrows: lmFrom.isNotEmpty
+                        ? [
+                            BoardArrow(
+                              from: lmFrom,
+                              to: lmTo,
+                              color: Colors.red.withOpacity(0.5),
+                            )
+                          ]
+                        : [],
                     boardOrientation: PlayerColor.white,
                   ),
                 ),
               ),
             ),
           ),
-          // FutureBuilder(
-          //   future: makeBlackMove(),
-          //   builder: (context, snapshot) {
-          //     if (snapshot.hasData) {
-          //       return const Text('Your Turn');
-          //     } else {
-          //       return const CircularProgressIndicator();
-          //     }
-          //   },
-          // ),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Container(
-              margin: const EdgeInsets.fromLTRB(10, 80, 10, 10),
-              child: FloatingActionButton(
-                onPressed: () {
-                  // controller.getPossibleMoves().forEach((element) {
-                  //   print("from: " +
-                  //       element.fromAlgebraic +
-                  //       " to: " +
-                  //       element.toAlgebraic);
-                  //   print("from: " +
-                  //       element.from.toString() +
-                  //       " to: " +
-                  //       element.to.toString());
-                  // });
-                  controller.resetBoard();
-                },
-                backgroundColor: Colors.green,
-                child: const Icon(Icons.refresh),
-                // isExtended: true,
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.fromLTRB(10, 80, 10, 10),
-              child: FloatingActionButton(
-                onPressed: () {
-                  controller.undoMove();
-                },
-                backgroundColor: Colors.deepPurpleAccent,
-                child: const Icon(Icons.undo),
-                // isExtended: true,
-              ),
-            )
-          ]),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: 
+              // !loading
+              //     ? [
+              //         Container(
+              //             margin: const EdgeInsets.fromLTRB(10, 80, 10, 10),
+              //             child: const LinearProgressIndicator(
+              //               color: Colors.purple,
+              //             ))
+              //       ]
+              //     : 
+                  [
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(10, 80, 10, 10),
+                        child: FloatingActionButton(
+                          onPressed: () {
+                            resetGame();
+                          },
+                          backgroundColor: Colors.green,
+                          child: const Icon(Icons.refresh),
+                          // isExtended: true,
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(10, 80, 10, 10),
+                        child: FloatingActionButton(
+                          onPressed: () {
+                            controller.undoMove();
+                          },
+                          backgroundColor: Colors.deepPurpleAccent,
+                          child: const Icon(Icons.undo),
+                          // isExtended: true,
+                        ),
+                      )
+                    ]),
         ],
       ),
     ));
