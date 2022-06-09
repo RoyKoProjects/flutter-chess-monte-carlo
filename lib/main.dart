@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chess_board/flutter_chess_board.dart';
 import 'MCTS.dart';
+import 'package:flutter/foundation.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,7 +45,7 @@ class _HomePageState extends State<HomePage> {
     } else {
       white = false;
     }
-    Node root = Node(null, fen);
+    Node root = Node(null, fen, null);
 
     setState(() {
       loading = true;
@@ -63,6 +64,10 @@ class _HomePageState extends State<HomePage> {
     print("nodesvisited: , ${compbrain.nodesVisited}");
   }
 
+  startCompBrain() async {
+    await compute(compbrain.asyncTest, 50);
+  }
+
   void resetGame() {
     controller.resetBoard();
     setState(() {
@@ -72,8 +77,11 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // @override
-  // void initState() {}
+  @override
+  void initState(){
+    super.initState();
+    startCompBrain();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,9 +136,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: 
+          Row(mainAxisAlignment: MainAxisAlignment.center, children:
               // !loading
               //     ? [
               //         Container(
@@ -139,31 +145,31 @@ class _HomePageState extends State<HomePage> {
               //               color: Colors.purple,
               //             ))
               //       ]
-              //     : 
-                  [
-                      Container(
-                        margin: const EdgeInsets.fromLTRB(10, 80, 10, 10),
-                        child: FloatingActionButton(
-                          onPressed: () {
-                            resetGame();
-                          },
-                          backgroundColor: Colors.green,
-                          child: const Icon(Icons.refresh),
-                          // isExtended: true,
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.fromLTRB(10, 80, 10, 10),
-                        child: FloatingActionButton(
-                          onPressed: () {
-                            controller.undoMove();
-                          },
-                          backgroundColor: Colors.deepPurpleAccent,
-                          child: const Icon(Icons.undo),
-                          // isExtended: true,
-                        ),
-                      )
-                    ]),
+              //     :
+              [
+            Container(
+              margin: const EdgeInsets.fromLTRB(10, 80, 10, 10),
+              child: FloatingActionButton(
+                onPressed: () {
+                  resetGame();
+                },
+                backgroundColor: Colors.green,
+                child: const Icon(Icons.refresh),
+                // isExtended: true,
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.fromLTRB(10, 80, 10, 10),
+              child: FloatingActionButton(
+                onPressed: () {
+                  controller.undoMove();
+                },
+                backgroundColor: Colors.deepPurpleAccent,
+                child: const Icon(Icons.undo),
+                // isExtended: true,
+              ),
+            )
+          ]),
         ],
       ),
     ));

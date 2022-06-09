@@ -1,13 +1,22 @@
 import 'dart:math' as math;
 import 'dart:core';
 import 'package:flutter_chess_board/flutter_chess_board.dart';
+import 'dart:io';
 
 class MCTS {
   Stopwatch stopwatch = Stopwatch()..start();
   int nodesVisited = 0;
-  Node root =
-      Node(null, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  Node root = Node(
+      null, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", null);
   // Node curNode;
+
+  Future asyncTest (int number) async{
+    while (number > 0) {
+      sleep(Duration(seconds: 1));
+      print(number);
+      number--;
+    }
+  }
 
   bool moveRoot(String fenMove) {
     for (Node child in root.children) {
@@ -123,7 +132,7 @@ class MCTS {
       Chess newboard = temp.copy();
       Move move = movelist[i];
       newboard.move(move);
-      curNode.children.add(Node(curNode, newboard.generate_fen()));
+      curNode.children.add(Node(curNode, newboard.generate_fen(), move));
     }
     final random = math.Random();
     return rollout(curNode.children[random.nextInt(curNode.children.length)]);
@@ -161,7 +170,7 @@ class MCTS {
         Move move = movelist[i];
         Chess newboard = temp.copy();
         newboard.move(move);
-        Node newNode = Node(curNode, newboard.generate_fen());
+        Node newNode = Node(curNode, newboard.generate_fen(), move);
         curNode.children.add(newNode);
         stateMoveMap[newNode] = move;
       }
@@ -246,10 +255,11 @@ class Node {
   Node? parent;
   String board = "";
   List<Node> children = [];
-  String action = '';
+  Move? lastAction;
   double V; //winning score of current node
   int N; //number of times parent visited
   int ni; // number of times children visited
 
-  Node(this.parent, this.board, {this.V = 0.0, this.N = 0, this.ni = 0});
+  Node(this.parent, this.board, this.lastAction,
+      {this.V = 0.0, this.N = 0, this.ni = 0});
 }
