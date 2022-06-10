@@ -45,8 +45,7 @@ class GamePageState extends State<GamePage> {
       }
     });
     Move? move = await think(input);
-    print(move?.fromAlgebraic);
-    print(move?.toAlgebraic);
+    print("${move?.fromAlgebraic} ${move?.toAlgebraic}");
     setState(() {
       _blackThinking = false;
       _whiteThinking = false;
@@ -81,6 +80,10 @@ class GamePageState extends State<GamePage> {
         if (move != null) {
           controller.makeMove(from: move.fromAlgebraic, to: move.toAlgebraic);
         }
+        setState(() {
+          _lmFrom = move?.fromAlgebraic?? "";
+          _lmTo = move?.toAlgebraic?? "";
+        });
       });
     }
   }
@@ -97,6 +100,9 @@ class GamePageState extends State<GamePage> {
       _sugFrom = "";
       _sugTo = "";
     });
+    if (!widget.whitePlayer) {
+      makeComputerMove();
+    }
   }
 
   @override

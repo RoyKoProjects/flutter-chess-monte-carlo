@@ -4,11 +4,13 @@ import 'package:flutter_chess_board/flutter_chess_board.dart';
 import 'dart:io';
 
 class MCTS {
-  double ucbl(Node curNode) {
+  Map<String,Node> nodes = {};
+
+  double _ucbl(Node curNode) {
     return curNode.V + 2 * math.sqrt(math.log(curNode.N) / curNode.ni);
   }
 
-  Node expansion(Node curNode, bool white) {
+  Node _expansion(Node curNode, bool white) {
     if (curNode.children.isEmpty) {
       return curNode;
     }
@@ -21,7 +23,7 @@ class MCTS {
           selectedChild = child;
           break;
         }
-        double ucb = ucbl(child);
+        double ucb = _ucbl(child);
         if (ucb > maxUcb) {
           maxUcb = ucb;
           selectedChild = child;
@@ -35,7 +37,7 @@ class MCTS {
           selectedChild = child;
           break;
         }
-        double ucb = ucbl(child);
+        double ucb = _ucbl(child);
         if (ucb < minUcb) {
           minUcb = ucb;
           selectedChild = child;
@@ -43,10 +45,10 @@ class MCTS {
       }
     }
 
-    return expansion(selectedChild, !white);
+    return _expansion(selectedChild, !white);
   }
 
-  double rollout(Node curNode) {
+  double _rollout(Node curNode) {
     Chess temp = Chess.fromFEN(curNode.board);
     if (temp.game_over) {
       if (temp.in_checkmate) {
@@ -78,10 +80,10 @@ class MCTS {
       curNode.children.add(Node(curNode, newboard.generate_fen(), move));
     }
     final random = math.Random();
-    return rollout(curNode.children[random.nextInt(curNode.children.length)]);
+    return _rollout(curNode.children[random.nextInt(curNode.children.length)]);
   }
 
-  Node backPropagation(Node curNode, double reward) {
+  Node _backPropagation(Node curNode, double reward) {
     while (curNode.parent != null) {
       curNode.ni += 1;
       curNode.N += 1;
@@ -129,15 +131,15 @@ class MCTS {
             selectedChild = child;
             break;
           }
-          double ucb = ucbl(child);
+          double ucb = _ucbl(child);
           if (ucb > maxUcb) {
             maxUcb = ucb;
             selectedChild = child;
           }
         }
-        Node exChild = expansion(selectedChild, false);
-        double reward = rollout(exChild);
-        input["curNode"] = backPropagation(exChild, reward);
+        Node exChild = _expansion(selectedChild, false);
+        double reward = _rollout(exChild);
+        input["curNode"] = _backPropagation(exChild, reward);
         minGames -= 1;
       } else {
         double minUcb = double.infinity;
@@ -147,15 +149,15 @@ class MCTS {
             selectedChild = child;
             break;
           }
-          double ucb = ucbl(child);
+          double ucb = _ucbl(child);
           if (ucb < minUcb) {
             minUcb = ucb;
             selectedChild = child;
           }
         }
-        Node exChild = expansion(selectedChild, true);
-        double reward = rollout(exChild);
-        input["curNode"] = backPropagation(exChild, reward);
+        Node exChild = _expansion(selectedChild, true);
+        double reward = _rollout(exChild);
+        input["curNode"] = _backPropagation(exChild, reward);
         minGames -= 1;
       }
     }
@@ -163,7 +165,7 @@ class MCTS {
       double mx = double.negativeInfinity;
       Move? selectedMove;
       for (Node child in input["curNode"].children) {
-        double ucb = ucbl(child);
+        double ucb = _ucbl(child);
         if (ucb > mx) {
           mx = ucb;
           selectedMove = child.lastAction;
@@ -174,7 +176,7 @@ class MCTS {
       double mn = double.infinity;
       Move? selectedMove;
       for (Node child in input["curNode"].children) {
-        double ucb = ucbl(child);
+        double ucb = _ucbl(child);
         if (ucb < mn) {
           mn = ucb;
           selectedMove = child.lastAction;
@@ -198,7 +200,7 @@ class Node {
       {this.V = 0.0, this.N = 0, this.ni = 0});
 
   Node copy() {
-    return Node(this.parent, this.board, this.lastAction,
-        V: this.V, N: this.N, ni: this.ni);
+    return Node(parent, board, lastAction,
+        V: V, N: N, ni: ni);
   }
 }
