@@ -101,8 +101,8 @@ class MCTS {
     }
     int duration;
     int minGames;
-    duration = 60 ~/ math.log(input["moveCount"]);
-    minGames = 50 ~/ math.log(input["moveCount"]);
+    duration = 3 ~/ math.log(input["moveCount"]);
+    minGames = 3 ~/ math.log(input["moveCount"]);
     Map<Node, Move> stateMoveMap = {};
 
     Chess temp = Chess.fromFEN(input["curNode"].board);

@@ -64,6 +64,7 @@ class GamePageState extends State<GamePage> {
 
   makeComputerMove() {
     if (controller.isGameOver()) {
+      _check4mate();
       return;
     }
 
@@ -81,10 +82,59 @@ class GamePageState extends State<GamePage> {
           controller.makeMove(from: move.fromAlgebraic, to: move.toAlgebraic);
         }
         setState(() {
-          _lmFrom = move?.fromAlgebraic?? "";
-          _lmTo = move?.toAlgebraic?? "";
+          _lmFrom = move?.fromAlgebraic ?? "";
+          _lmTo = move?.toAlgebraic ?? "";
         });
       });
+    }
+    _check4mate();
+  }
+
+  Future<void> _check4mate() async {
+    if (!controller.isGameOver()) {
+      return;
+    }
+    if (controller.isCheckMate()) {
+      return showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return const AlertDialog(
+            title: Text('Checkmate!',textAlign: TextAlign.center),
+          );
+        },
+      );
+    }
+    if (controller.isInCheck()) {
+      return showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return const AlertDialog(
+            title: Text('Check!',textAlign: TextAlign.center),
+          );
+        },
+      );
+    }
+    if (controller.isDraw()) {
+      return showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return const AlertDialog(
+            title: Text('Draw!',textAlign: TextAlign.center),
+          );
+        },
+      );
+    }
+    if (controller.isInsufficientMaterial() ||
+        controller.isStaleMate() ||
+        controller.isThreefoldRepetition()) {
+      return showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return const AlertDialog(
+            title: Text('Stalemate!',textAlign: TextAlign.center),
+          );
+        },
+      );
     }
   }
 
