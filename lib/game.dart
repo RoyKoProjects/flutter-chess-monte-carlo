@@ -14,7 +14,7 @@ class GamePage extends StatefulWidget {
 class GamePageState extends State<GamePage> {
   ChessBoardController controller = ChessBoardController();
   final MCTS _compbrain = MCTS();
-  bool _white_thinking = false;
+  bool _whiteThinking = false;
   bool _blackThinking = false;
   String _lmFrom = "";
   String _lmTo = "";
@@ -39,7 +39,7 @@ class GamePageState extends State<GamePage> {
     }
     setState(() {
       if (white) {
-        _white_thinking = true;
+        _whiteThinking = true;
       } else {
         _blackThinking = true;
       }
@@ -49,7 +49,7 @@ class GamePageState extends State<GamePage> {
     print(move?.toAlgebraic);
     setState(() {
       _blackThinking = false;
-      _white_thinking = false;
+      _whiteThinking = false;
       _sugFrom = move?.fromAlgebraic ?? "";
       _sugTo = move?.toAlgebraic ?? "";
     });
@@ -100,6 +100,12 @@ class GamePageState extends State<GamePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    makeComputerMove();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: SafeArea(
@@ -107,11 +113,11 @@ class GamePageState extends State<GamePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Visibility(
-            visible: _blackThinking,
+            visible: widget.whitePlayer ? _blackThinking : _whiteThinking,
             child: Container(
                 margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                 child: const LinearProgressIndicator(
-                  minHeight: 20,
+                  minHeight: 10,
                   backgroundColor: Colors.black,
                   color: Colors.pink,
                 )),
@@ -125,47 +131,48 @@ class GamePageState extends State<GamePage> {
                   border: Border.all(color: Colors.black, width: 2.0)),
               child: Center(
                 child: ChessBoard(
-                  onMove: () => {makeComputerMove()},
-                  enableUserMoves: !_white_thinking && !_blackThinking,
-                  controller: controller,
-                  boardColor: BoardColor.green,
-                  arrows: _lmFrom.isNotEmpty && _sugFrom.isNotEmpty
-                      ? [
-                          BoardArrow(
-                            from: _lmFrom,
-                            to: _lmTo,
-                            color: Colors.red.withOpacity(0.5),
-                          ),
-                          BoardArrow(
-                            from: _sugFrom,
-                            to: _sugTo,
-                            color: Colors.indigo.withOpacity(0.5),
-                          )
-                        ]
-                      : _lmFrom.isNotEmpty
-                          ? [
-                              BoardArrow(
-                                from: _lmFrom,
-                                to: _lmTo,
-                                color: Colors.red.withOpacity(0.5),
-                              ),
-                            ]
-                          : _sugFrom.isNotEmpty
-                              ? [
-                                  BoardArrow(
-                                    from: _sugFrom,
-                                    to: _sugTo,
-                                    color: Colors.pink.withOpacity(0.5),
-                                  )
-                                ]
-                              : [],
-                  boardOrientation: PlayerColor.white,
-                ),
+                    onMove: () => {makeComputerMove()},
+                    enableUserMoves: !_whiteThinking && !_blackThinking,
+                    controller: controller,
+                    boardColor: BoardColor.green,
+                    arrows: _lmFrom.isNotEmpty && _sugFrom.isNotEmpty
+                        ? [
+                            BoardArrow(
+                              from: _lmFrom,
+                              to: _lmTo,
+                              color: Colors.red.withOpacity(0.5),
+                            ),
+                            BoardArrow(
+                              from: _sugFrom,
+                              to: _sugTo,
+                              color: Colors.indigo.withOpacity(0.5),
+                            )
+                          ]
+                        : _lmFrom.isNotEmpty
+                            ? [
+                                BoardArrow(
+                                  from: _lmFrom,
+                                  to: _lmTo,
+                                  color: Colors.red.withOpacity(0.5),
+                                ),
+                              ]
+                            : _sugFrom.isNotEmpty
+                                ? [
+                                    BoardArrow(
+                                      from: _sugFrom,
+                                      to: _sugTo,
+                                      color: Colors.pink.withOpacity(0.5),
+                                    )
+                                  ]
+                                : [],
+                    boardOrientation: widget.whitePlayer
+                        ? PlayerColor.white
+                        : PlayerColor.black),
               ),
             ),
           ),
           Visibility(
-            visible: !_white_thinking && !_blackThinking,
+            visible: !_whiteThinking && !_blackThinking,
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Container(
                 margin: const EdgeInsets.fromLTRB(10, 80, 10, 10),
@@ -206,11 +213,11 @@ class GamePageState extends State<GamePage> {
             ]),
           ),
           Visibility(
-            visible: _white_thinking,
+            visible: widget.whitePlayer ? _whiteThinking : _blackThinking,
             child: Container(
                 margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                 child: const LinearProgressIndicator(
-                  minHeight: 20,
+                  minHeight: 10,
                   backgroundColor: Colors.indigo,
                   color: Colors.white54,
                 )),
