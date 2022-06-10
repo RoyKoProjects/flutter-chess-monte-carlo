@@ -25,8 +25,8 @@ class Menu extends StatelessWidget {
                     color: Colors.black12,
                     alignment: Alignment.center,
                     margin: EdgeInsets.symmetric(
-                        horizontal: MediaQuery.of(context).size.width * .33,
-                        vertical: 100),
+                        horizontal: MediaQuery.of(context).size.width * .1,
+                        vertical: MediaQuery.of(context).size.height * .03),
                     child: (const Text("Play as White",
                         textAlign: TextAlign.center,
                         style:
@@ -45,9 +45,9 @@ class Menu extends StatelessWidget {
                     height: 100,
                     color: Colors.black,
                     alignment: Alignment.center,
-                    margin: EdgeInsets.symmetric(
-                        horizontal: MediaQuery.of(context).size.width * .33,
-                        vertical: 100),
+                     margin: EdgeInsets.symmetric(
+                        horizontal: MediaQuery.of(context).size.width * .1,
+                        vertical: MediaQuery.of(context).size.height * .03),
                     child: (const Text(
                       "Play as Black",
                       textAlign: TextAlign.center,

@@ -106,23 +106,6 @@ class GamePageState extends State<GamePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // SingleChildScrollView(
-          //     child: ConstrainedBox(
-          //   constraints: BoxConstraints(
-          //       maxHeight: MediaQuery.of(context).size.height * .10),
-          //   child: ValueListenableBuilder<Chess>(
-          //     valueListenable: controller,
-          //     builder: (context, game, _) {
-          //       return Text(
-          //         controller.getSan().fold(
-          //               '',
-          //               (previousValue, element) =>
-          //                   previousValue + '\n' + (element ?? ''),
-          //             ),
-          //       );
-          //     },
-          //   ),
-          // )),
           Visibility(
             visible: _blackThinking,
             child: Container(
