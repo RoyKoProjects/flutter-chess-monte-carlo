@@ -1,13 +1,10 @@
 import 'dart:math' as math;
 import 'dart:core';
 import 'package:flutter_chess_board/flutter_chess_board.dart';
-import 'dart:io';
 
 class MCTS {
-  Map<String,Node> nodes = {};
-
   double _ucbl(Node curNode) {
-    return curNode.V + 2 * math.sqrt(math.log(curNode.N) / curNode.ni);
+    return curNode.V + 100 * math.sqrt(math.log(curNode.N) / curNode.ni);
   }
 
   Node _expansion(Node curNode, bool white) {
@@ -73,14 +70,13 @@ class MCTS {
     }
 
     List movelist = temp.generate_moves();
-    for (int i = 0; i < movelist.length; i++) {
-      Chess newboard = temp.copy();
-      Move move = movelist[i];
-      newboard.move(move);
-      curNode.children.add(Node(curNode, newboard.generate_fen(), move));
-    }
     final random = math.Random();
-    return _rollout(curNode.children[random.nextInt(curNode.children.length)]);
+    Move randomMove = movelist[random.nextInt(movelist.length)];
+    temp.move(randomMove);
+    Node childNode = Node(curNode, temp.generate_fen(), randomMove);
+    curNode.children.add(childNode);
+
+    return _rollout(childNode);
   }
 
   Node _backPropagation(Node curNode, double reward) {
@@ -95,14 +91,6 @@ class MCTS {
 
   Future<Move?> getPrediction(Map input) async {
     Stopwatch stopwatch = Stopwatch()..start();
-
-    if (input["moveCount"] < 2) {
-      input["moveCount"] = 2;
-    }
-    int duration;
-    int minGames;
-    duration = 3 ~/ math.log(input["moveCount"]);
-    minGames = 3 ~/ math.log(input["moveCount"]);
     Map<Node, Move> stateMoveMap = {};
 
     Chess temp = Chess.fromFEN(input["curNode"].board);
@@ -118,11 +106,8 @@ class MCTS {
       }
     }
 
-    while (minGames > 0 ||
-        stopwatch.elapsedMilliseconds <
-            Duration(seconds: duration).inMilliseconds) {
-      print(
-          "${stopwatch.elapsedMilliseconds ~/ 1000} /$duration sec, games left: $minGames");
+    while (
+        stopwatch.elapsedMilliseconds < const Duration(seconds: 12).inMilliseconds) {
       if (input["white"]) {
         double maxUcb = double.negativeInfinity;
         Node selectedChild = input["curNode"].children[0];
@@ -140,7 +125,6 @@ class MCTS {
         Node exChild = _expansion(selectedChild, false);
         double reward = _rollout(exChild);
         input["curNode"] = _backPropagation(exChild, reward);
-        minGames -= 1;
       } else {
         double minUcb = double.infinity;
         Node selectedChild = input["curNode"].children[0];
@@ -158,7 +142,6 @@ class MCTS {
         Node exChild = _expansion(selectedChild, true);
         double reward = _rollout(exChild);
         input["curNode"] = _backPropagation(exChild, reward);
-        minGames -= 1;
       }
     }
     if (input["white"]) {
@@ -200,7 +183,6 @@ class Node {
       {this.V = 0.0, this.N = 0, this.ni = 0});
 
   Node copy() {
-    return Node(parent, board, lastAction,
-        V: V, N: N, ni: ni);
+    return Node(parent, board, lastAction, V: V, N: N, ni: ni);
   }
 }

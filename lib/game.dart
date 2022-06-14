@@ -23,7 +23,6 @@ class GamePageState extends State<GamePage> {
 
   Future<Move?> getSuggestedMove() async {
     String fen = controller.getFen();
-    print(fen.split(' '));
     bool white;
     if (fen.split(' ')[1] == 'w') {
       white = true;
@@ -33,7 +32,6 @@ class GamePageState extends State<GamePage> {
     Map input = {};
     input["curNode"] = Node(null, fen, null);
     input["white"] = white;
-    input["moveCount"] = controller.getMoveCount();
     if (controller.isGameOver()) {
       return null;
     }
@@ -45,7 +43,6 @@ class GamePageState extends State<GamePage> {
       }
     });
     Move? move = await think(input);
-    print("${move?.fromAlgebraic} ${move?.toAlgebraic}");
     setState(() {
       _blackThinking = false;
       _whiteThinking = false;
