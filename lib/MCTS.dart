@@ -1,10 +1,10 @@
-import 'dart:math' as math;
+import 'dart:math';
 import 'dart:core';
 import 'package:flutter_chess_board/flutter_chess_board.dart';
 
-class MCTS {
+class Mcts {
   double _ucbl(Node curNode) {
-    return curNode.V + 100 * math.sqrt(math.log(curNode.N) / curNode.ni);
+    return curNode.V + 100 * sqrt(log(curNode.N) / curNode.ni);
   }
 
   Node _expansion(Node curNode, bool white) {
@@ -70,7 +70,7 @@ class MCTS {
     }
 
     List movelist = temp.generate_moves();
-    final random = math.Random();
+    final random = Random();
     Move randomMove = movelist[random.nextInt(movelist.length)];
     temp.move(randomMove);
     Node childNode = Node(curNode, temp.generate_fen(), randomMove);
@@ -168,6 +168,8 @@ class MCTS {
       return selectedMove;
     }
   }
+
+
 }
 
 class Node {
