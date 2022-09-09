@@ -45,6 +45,7 @@ class GamePageState extends State<GamePage> {
       return jsonResp["BESTMOVE"];
     } catch (e) {
       debugPrint(e.toString());
+      debug= e.toString();
     }
 
     return null;
