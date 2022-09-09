@@ -24,8 +24,6 @@ class GamePageState extends State<GamePage> {
   String _sugFrom = "";
   String _sugTo = "";
   final client = http.Client();
-  String debug = "debug mode";
-  int debugEnabled = 0;
 
   Future<String?> getServerMove({bool longThink = false}) async {
     try {
@@ -39,13 +37,9 @@ class GamePageState extends State<GamePage> {
             'maxtime': longThink ? '10000' : '1000'
           }));
       var jsonResp = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
-      setState(() {
-        debug = jsonResp["BESTMOVE"];
-      });
       return jsonResp["BESTMOVE"];
     } catch (e) {
       debugPrint(e.toString());
-      debug= e.toString();
     }
 
     return null;
@@ -249,22 +243,6 @@ class GamePageState extends State<GamePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          InkWell(
-              onTap: () {
-                setState(() {
-                  debugEnabled += 1;
-                });
-              },
-              child: Container(
-                  height: 20,
-                  color: Colors.white,
-                  alignment: Alignment.center,
-                  margin: EdgeInsets.symmetric(
-                      horizontal: MediaQuery.of(context).size.width * .3,
-                      vertical: MediaQuery.of(context).size.height * .03),
-                  child: (Text(debugEnabled > 25 ? debug : "",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 10, fontFamily: "Roboto"))))),
           Visibility(
             visible: widget.whitePlayer ? _blackThinking : _whiteThinking,
             child: Container(
