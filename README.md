@@ -1,6 +1,6 @@
 # Flutter_Monte_Carlo_AI
 
-A new Flutter project.
+A Chess Flutter app project.
 
 ## How to Install
 
